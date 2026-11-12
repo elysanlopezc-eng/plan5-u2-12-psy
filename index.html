@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizarra Digital Interactiva - Colegio Montano</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        montano: {
+                            blue: '#1269A8',
+                            yellow: '#F7D615',
+                            teal: '#54887D',
+                            lightblue: '#88B5C7',
+                            olive: '#A6B046',
+                            bg: '#F2F5E9',
+                            darkblue: '#0d4e7d'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Segoe UI', 'Tahoma', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F2F5E9;
+            font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+        }
+        .tab-btn.active {
+            background-color: #1269A8;
+            color: #ffffff;
+            border-bottom: 4px solid #F7D615;
+            transform: translateY(-2px);
+        }
+        .board-card {
+            background-color: #ffffff;
+            border: 2px solid #88B5C7;
+            box-shadow: 0 10px 25px -5px rgba(18, 105, 168, 0.1), 0 8px 10px -6px rgba(18, 105, 168, 0.1);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-content.open {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <!-- BARRA SUPERIOR DE ENCABEZADO E INSTITUCIONAL -->
+    <header class="bg-montano-blue text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <!-- Logo e Identidad -->
+            <div class="flex items-center gap-4">
+                <div class="bg-white p-1.5 rounded-lg shadow-sm">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyEop0yf6lZ7Jk9MILZxF1rBj4Oqs5esyhIQ&s" 
+                         alt="Colegio Montano" 
+                         class="h-12 w-auto object-contain"
+                         onerror="this.src='https://placehold.co/120x50/1269A8/FFFFFF?text=Montano'">
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        <span>Colegio Montano</span>
+                        <span class="bg-montano-yellow text-montano-darkblue text-xs px-2.5 py-0.5 rounded-full font-extrabold uppercase">Plan Diario</span>
+                    </h1>
+                    <p class="text-xs text-montano-lightblue font-medium">Pizarra Digital Interactiva de Aula</p>
+                </div>
+            </div>
+
+            <!-- Botones de Acción y Fullscreen -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleFullscreen()" class="bg-montano-teal hover:bg-opacity-90 text-white px-4 py-2 rounded-xl font-semibold text-sm flex items-center gap-2 transition shadow hover:shadow-md active:scale-95">
+                    <i class="fa-solid font-bold fa-expand" id="fullscreenIcon"></i>
+                    <span id="fullscreenText">Pantalla Completa</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- METADATOS Y ENCABEZADO DE LA CLASE -->
+    <section class="max-w-7xl mx-auto w-full px-4 mt-6">
+        <div class="bg-white rounded-2xl p-6 border-l-8 border-montano-yellow shadow-md grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 text-center">
+            <div class="border-r border-slate-100 last:border-0 pr-2">
+                <span class="text-xs text-slate-400 font-bold uppercase block">Curso</span>
+                <span class="font-bold text-montano-blue text-sm">Psychology</span>
+            </div>
+            <div class="border-r border-slate-100 last:border-0 pr-2">
+                <span class="text-xs text-slate-400 font-bold uppercase block">Grado</span>
+                <span class="font-bold text-slate-700 text-sm">5to Mercadotecnia</span>
+            </div>
+            <div class="border-r border-slate-100 last:border-0 pr-2">
+                <span class="text-xs text-slate-400 font-bold uppercase block">Unidad & Plan</span>
+                <span class="font-bold text-slate-700 text-sm">Unidad 2 - Plan #5</span>
+            </div>
+            <div class="border-r border-slate-100 last:border-0 pr-2">
+                <span class="text-xs text-slate-400 font-bold uppercase block">Fecha</span>
+                <span class="font-bold text-slate-700 text-sm">April 26th - 30th</span>
+            </div>
+            <div class="border-r border-slate-100 last:border-0 pr-2 col-span-2 md:col-span-1">
+                <span class="text-xs text-slate-400 font-bold uppercase block">Docente</span>
+                <span class="font-bold text-slate-700 text-sm">Elysa López</span>
+            </div>
+            <div class="col-span-2 md:col-span-2 bg-montano-bg p-2 rounded-xl flex flex-col justify-center">
+                <span class="text-xs text-montano-teal font-bold uppercase">Hábitos Montano Clave</span>
+                <span class="text-xs font-semibold text-slate-700">🎯 Comenzar con un fin en mente | 🤝 Sinergizar</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- MARCO PEDAGÓGICO CNB Y HÁBITOS (DESPLEGABLE / RESUMEN) -->
+    <section class="max-w-7xl mx-auto w-full px-4 mt-4">
+        <div class="bg-montano-blue/5 rounded-2xl p-4 border border-montano-blue/20">
+            <div class="flex justify-between items-center cursor-pointer" onclick="togglePedagogy()">
+                <div class="flex items-center gap-3">
+                    <div class="bg-montano-blue text-white p-2 rounded-lg">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-montano-blue text-sm md:text-base">Alineación Curricular CNB Guatemala y Enfoque Institucional</h3>
+                        <p class="text-xs text-slate-500">Competencias, logros de aprendizaje y habilidades blandas para la sesión</p>
+                    </div>
+                </div>
+                <button class="text-montano-blue text-sm font-semibold flex items-center gap-1">
+                    <span id="pedagogyToggleText">Ver Detalles</span>
+                    <i class="fa-solid fa-chevron-down transition-transform duration-300" id="pedagogyChevron"></i>
+                </button>
+            </div>
+            
+            <div id="pedagogyContent" class="hidden mt-4 pt-4 border-t border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div class="bg-white p-3 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-montano-blue mb-1"><i class="fa-solid fa-target mr-1"></i> Competencia CNB:</h4>
+                    <p class="text-slate-600">Aplica metodologías y herramientas de investigación psicológica y de mercado para analizar comportamientos, percepciones y toma de decisiones en contextos específicos.</p>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-montano-teal mb-1"><i class="fa-solid fa-circle-check mr-1"></i> Logro de Aprendizaje:</h4>
+                    <p class="text-slate-600">Diseña, evalúa y corrige instrumentos de investigación (cuestionarios e entrevistas) identificando y eliminado sesgos, preguntas guiadas y ambiguas.</p>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-montano-olive mb-1"><i class="fa-solid fa-brain mr-1"></i> Competencias Clave & Hábitos:</h4>
+                    <p class="text-slate-600">Pensamiento crítico, comunicación asertiva, flexibilidad. Hábitos: <em>Buscar primero entender, luego ser entendido</em> y <em>Afilar la sierra</em>.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NAVEGACIÓN DE PESTAÑAS (SECUENCIA DIDÁCTICA) -->
+    <main class="max-w-7xl mx-auto w-full px-4 my-6 flex-grow flex flex-col">
+        <div class="flex flex-wrap gap-2 mb-4 border-b border-slate-200 pb-2">
+            <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn active px-5 py-3 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-100 transition flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-montano-yellow text-montano-darkblue flex items-center justify-center text-xs font-black">I</span>
+                <span>Introducción Motivante</span>
+                <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-xs font-normal">~5 min</span>
+            </button>
+            <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn px-5 py-3 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-100 transition flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center text-xs font-black">II</span>
+                <span>Trabajo Individual / Fundamento</span>
+                <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-xs font-normal">30 min</span>
+            </button>
+            <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn px-5 py-3 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-100 transition flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center text-xs font-black">III</span>
+                <span>Trabajo Cooperativo</span>
+                <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-xs font-normal">25 min</span>
+            </button>
+            <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn px-5 py-3 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-100 transition flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center text-xs font-black">IV</span>
+                <span>Plenaria, Juego & Feedback</span>
+                <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-xs font-normal">10 min</span>
+            </button>
+        </div>
+
+        <!-- CONTENIDO DE LAS PESTAÑAS -->
+        <div class="board-card rounded-2xl p-6 flex-grow">
+            
+            <!-- PESTAÑA I: INTRODUCCIÓN MOTIVANTE (5 MIN) -->
+            <div id="tab1" class="tab-content">
+                <div class="flex items-center justify-between mb-4 border-b pb-3">
+                    <div>
+                        <span class="text-xs font-bold text-montano-teal uppercase tracking-wider">Momento I • Inicio Diagnóstico</span>
+                        <h2 class="text-2xl font-bold text-montano-blue">Warm-Up: Evaluate a Sample Survey Question (5 min)</h2>
+                    </div>
+                    <span class="bg-montano-yellow/30 text-montano-darkblue text-xs font-bold px-3 py-1 rounded-full border border-montano-yellow">
+                        <i class="fa-regular fa-clock mr-1"></i> 5 minutos
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
+                    <div class="bg-montano-bg p-5 rounded-2xl border border-montano-lightblue/40">
+                        <h3 class="font-bold text-montano-blue text-lg mb-2"><i class="fa-solid fa-comment-slash mr-2 text-red-500"></i> Pregunta Problema en Pantalla:</h3>
+                        <p class="text-sm text-slate-600 mb-4">Proyecta la siguiente pregunta e invita a 2 estudiantes a evaluar qué está mal con ella:</p>
+                        
+                        <div class="bg-white p-4 rounded-xl shadow-inner border border-slate-300 mb-4 text-center">
+                            <p class="text-lg font-serif italic text-slate-800">"Don't you agree that our product is the most innovative and easy to use on the market?"</p>
+                            <div class="mt-2 flex justify-center gap-4 text-xs text-slate-500">
+                                <span>[ ] Yes, completely</span>
+                                <span>[ ] Somewhat</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 p-3 rounded-xl border border-blue-200 text-xs text-montano-blue">
+                            <strong><i class="fa-solid fa-lightbulb mr-1"></i> Pregunta Guía del Docente:</strong> "¿Qué sesgo o error detectan en cómo está formulada esta pregunta?"
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl">
+                            <h4 class="font-bold text-emerald-800 text-sm mb-1"><i class="fa-solid fa-circle-check mr-1"></i> Desglose del Análisis (Respuesta Esperada):</h4>
+                            <ul class="text-xs text-emerald-900 space-y-2 list-disc list-inside">
+                                <li><strong>Leading Question (Pregunta Guiada):</strong> Utiliza "Don't you agree..." forzando al encuestado a asentir.</li>
+                                <li><strong>Biased Wording:</strong> Emplea adjetivos cargados ("most innovative", "easy to use").</li>
+                                <li><strong>Missing Options:</strong> No ofrece una opción real de respuesta negativa o neutral.</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl">
+                            <h4 class="font-bold text-amber-800 text-sm mb-1"><i class="fa-solid fa-seedling mr-1"></i> Hábitos Montano en Acción:</h4>
+                            <p class="text-xs text-amber-900">
+                                <strong>Buscar primero entender, luego ser entendido:</strong> En psicología y mercadotecnia, investigamos para entender la verdad del consumidor, no para validar nuestros sesgos personales.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA II: TRABAJO INDIVIDUAL (30 MIN) -->
+            <div id="tab2" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-4 border-b pb-3">
+                    <div>
+                        <span class="text-xs font-bold text-montano-teal uppercase tracking-wider">Momento II • Construcción & Análisis</span>
+                        <h2 class="text-2xl font-bold text-montano-blue">Fundamento & Identificación de Sesgos (30 min)</h2>
+                    </div>
+                    <span class="bg-montano-yellow/30 text-montano-darkblue text-xs font-bold px-3 py-1 rounded-full border border-montano-yellow">
+                        <i class="fa-regular fa-clock mr-1"></i> 15m Explicación + 15m Práctica
+                    </span>
+                </div>
+
+                <!-- Bloque 1: Explicación (15 min) -->
+                <div class="mb-6">
+                    <h3 class="font-bold text-slate-700 text-base mb-3 flex items-center gap-2">
+                        <span class="bg-montano-blue text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+                        <span>Key Concepts: Questionnaire & Interview Design (15 min)</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <div class="bg-montano-bg p-3 rounded-xl border border-montano-lightblue">
+                            <span class="font-bold text-montano-blue text-xs block mb-1">Open vs. Closed Questions</span>
+                            <p class="text-xs text-slate-600">Abiertas (cualitativas, profundidad) vs Cerradas (cuantitativas, rápidas de medir).</p>
+                        </div>
+                        <div class="bg-montano-bg p-3 rounded-xl border border-montano-lightblue">
+                            <span class="font-bold text-montano-blue text-xs block mb-1">Rating Scales</span>
+                            <p class="text-xs text-slate-600">Escalas Likert (1 a 5 / 1 a 7). Importancia de opciones neutrales y equilibrio.</p>
+                        </div>
+                        <div class="bg-montano-bg p-3 rounded-xl border border-montano-lightblue">
+                            <span class="font-bold text-montano-blue text-xs block mb-1">Interview Guides</span>
+                            <p class="text-xs text-slate-600">Estructura de la entrevista: Rapport -> Preguntas filtro -> Núcleo -> Cierre.</p>
+                        </div>
+                        <div class="bg-montano-bg p-3 rounded-xl border border-montano-lightblue">
+                            <span class="font-bold text-montano-blue text-xs block mb-1">Neutral Wording</span>
+                            <p class="text-xs text-slate-600">Redacción imparcial, sin influir en la respuesta de los participantes.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bloque 2: Identificación con Acordeones Desplegables (15 min) -->
+                <div>
+                    <h3 class="font-bold text-slate-700 text-base mb-3 flex items-center gap-2">
+                        <span class="bg-montano-blue text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+                        <span>Individual Challenge: Identify Question Errors (15 min)</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-3">Pide a los estudiantes clasificar las siguientes 3 preguntas erróneas en sus cuadernos. Haz clic en la tarjeta para mostrar/ocultar la solución:</p>
+
+                    <div class="space-y-3">
+                        <!-- Acordeón 1 -->
+                        <div class="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                            <button onclick="toggleAccordion('acc1')" class="w-full text-left p-4 bg-slate-50 hover:bg-slate-100 font-semibold text-sm flex justify-between items-center text-slate-800">
+                                <span>Caso A: "How satisfied were you with our fast and friendly customer service?"</span>
+                                <span class="text-montano-blue text-xs font-bold">Ver Solución <i class="fa-solid fa-chevron-down ml-1"></i></span>
+                            </button>
+                            <div id="acc1" class="accordion-content px-4 bg-white">
+                                <div class="py-3 border-t border-slate-100 text-xs text-slate-600 space-y-1">
+                                    <p><strong class="text-red-600">Tipo de Error:</strong> Biased & Leading Question + Double-Barreled.</p>
+                                    <p><strong class="text-montano-teal">Explicación:</strong> Asume que el servicio fue "rápido" y "amigable". Además evalúa dos conceptos a la vez.</p>
+                                    <p><strong class="text-emerald-700">Corrección Sugerida:</strong> "How would you rate the customer service you received?" (Escala 1 a 5).</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Acordeón 2 -->
+                        <div class="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                            <button onclick="toggleAccordion('acc2')" class="w-full text-left p-4 bg-slate-50 hover:bg-slate-100 font-semibold text-sm flex justify-between items-center text-slate-800">
+                                <span>Caso B: "Do you prefer studying psychology and doing research at night?"</span>
+                                <span class="text-montano-blue text-xs font-bold">Ver Solución <i class="fa-solid fa-chevron-down ml-1"></i></span>
+                            </button>
+                            <div id="acc2" class="accordion-content px-4 bg-white">
+                                <div class="py-3 border-t border-slate-100 text-xs text-slate-600 space-y-1">
+                                    <p><strong class="text-red-600">Tipo de Error:</strong> Double-Barreled Question (Pregunta Doble).</p>
+                                    <p><strong class="text-montano-teal">Explicación:</strong> Un alumno puede preferir estudiar psicología pero NO hacer investigación en la noche.</p>
+                                    <p><strong class="text-emerald-700">Corrección Sugerida:</strong> Separar en dos preguntas independientes.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Acordeón 3 -->
+                        <div class="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                            <button onclick="toggleAccordion('acc3')" class="w-full text-left p-4 bg-slate-50 hover:bg-slate-100 font-semibold text-sm flex justify-between items-center text-slate-800">
+                                <span>Caso C: "Where do you usually purchase products?"</span>
+                                <span class="text-montano-blue text-xs font-bold">Ver Solución <i class="fa-solid fa-chevron-down ml-1"></i></span>
+                            </button>
+                            <div id="acc3" class="accordion-content px-4 bg-white">
+                                <div class="py-3 border-t border-slate-100 text-xs text-slate-600 space-y-1">
+                                    <p><strong class="text-red-600">Tipo de Error:</strong> Ambiguous Question (Pregunta Ambigua).</p>
+                                    <p><strong class="text-montano-teal">Explicación:</strong> "¿Qué productos?" Es demasiado vago. Además faltan opciones de respuesta estandarizadas.</p>
+                                    <p><strong class="text-emerald-700">Corrección Sugerida:</strong> "Which stores do you visit to buy personal hygiene products?"</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA III: TRABAJO COOPERATIVO (25 MIN) -->
+            <div id="tab3" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-4 border-b pb-3">
+                    <div>
+                        <span class="text-xs font-bold text-montano-teal uppercase tracking-wider">Momento III • Aplicación en Parejas/Equipos</span>
+                        <h2 class="text-2xl font-bold text-montano-blue">Workshop: Fictional Product Survey Design (25 min)</h2>
+                    </div>
+                    <span class="bg-montano-yellow/30 text-montano-darkblue text-xs font-bold px-3 py-1 rounded-full border border-montano-yellow">
+                        <i class="fa-regular fa-clock mr-1"></i> 15m Redacción + 10m Peer-Review
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Instrucciones del Proyecto en Equipo -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="bg-montano-bg p-5 rounded-2xl border border-montano-lightblue">
+                            <h3 class="font-bold text-montano-blue text-lg mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-users text-montano-teal"></i>
+                                <span>Desafío en Equipos de 2 o 3 Estudiantes (15 min)</span>
+                            </h3>
+                            <p class="text-xs text-slate-600 mb-3">
+                                Seleccionen un <strong>producto ficticio</strong> (ej. <em>Smart Headphones para estudio, Bebida energética natural, App de organización escolar</em>) y redacten un borrador de mini-encuesta con:
+                            </p>
+
+                            <ul class="text-xs text-slate-700 space-y-2 list-disc list-inside bg-white p-4 rounded-xl border border-slate-200">
+                                <li><strong>1 Pregunta Abierta:</strong> Para obtener cualitativos sobre necesidades del usuario.</li>
+                                <li><strong>2 Preguntas Cerradas (Opción Múltiple):</strong> Con opciones neutras y no encimadas.</li>
+                                <li><strong>1 Pregunta en Escala Likert (1 a 5):</strong> Estandarizada para medir satisfacción/interés.</li>
+                                <li><strong>Cuidado especial:</strong> Cero preguntas guiadas (leading) o dobles (double-barreled).</li>
+                            </ul>
+                        </div>
+
+                        <!-- Evaluación de Pares (10 min) -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm">
+                            <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-arrows-rotate text-montano-olive"></i>
+                                <span>Peer-Review & Improvement (10 min) - Hábitos Montano: Sinergizar</span>
+                            </h4>
+                            <p class="text-xs text-slate-600 mb-2">
+                                Intercambien su borrador con otra pareja. Usen la siguiente lista de verificación rápida para pulir el trabajo de sus compañeros:
+                            </p>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="p-2 bg-slate-50 rounded-lg flex items-center gap-2">
+                                    <input type="checkbox" id="chk1" class="rounded text-montano-blue">
+                                    <label for="chk1" class="text-slate-700">¿El lenguaje es neutro?</label>
+                                </div>
+                                <div class="p-2 bg-slate-50 rounded-lg flex items-center gap-2">
+                                    <input type="checkbox" id="chk2" class="rounded text-montano-blue">
+                                    <label for="chk2" class="text-slate-700">¿Las opciones son claras?</label>
+                                </div>
+                                <div class="p-2 bg-slate-50 rounded-lg flex items-center gap-2">
+                                    <input type="checkbox" id="chk3" class="rounded text-montano-blue">
+                                    <label for="chk3" class="text-slate-700">¿Hay orden lógico?</label>
+                                </div>
+                                <div class="p-2 bg-slate-50 rounded-lg flex items-center gap-2">
+                                    <input type="checkbox" id="chk4" class="rounded text-montano-blue">
+                                    <label for="chk4" class="text-slate-700">¿Se evitó el copy-paste?</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Interactivo de Verificación para la Pizarra -->
+                    <div class="bg-slate-900 text-white p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+                        <div>
+                            <span class="text-xs text-montano-yellow font-bold uppercase tracking-widest block mb-2">Herramienta de Pizarra</span>
+                            <h4 class="font-bold text-base mb-3 text-white"><i class="fa-solid fa-wand-magic-sparkles mr-2 text-montano-yellow"></i>Question Fixer Simulator</h4>
+                            <p class="text-xs text-slate-300 mb-4">Prueba rápida en directo: Escribe una pregunta mala creada por un equipo para corregirla juntos en la pantalla.</p>
+
+                            <textarea id="simInput" rows="3" class="w-full bg-slate-800 text-xs p-3 rounded-xl border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-montano-yellow mb-3" placeholder="Ej: Don't you think our new coffee tastes great?"></textarea>
+
+                            <button onclick="runSimulator()" class="w-full bg-montano-yellow text-montano-darkblue font-bold py-2 rounded-xl text-xs hover:bg-yellow-400 transition shadow">
+                                Analizar & Corregir
+                            </button>
+                        </div>
+
+                        <div id="simOutput" class="mt-4 p-3 bg-slate-800/80 rounded-xl border border-slate-700 text-xs hidden">
+                            <span class="text-montano-yellow font-bold block mb-1">Diagnóstico Automático:</span>
+                            <p id="simResult" class="text-slate-300 italic"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA IV: PLENARIA Y FEEDBACK (10 MIN) -->
+            <div id="tab4" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-4 border-b pb-3">
+                    <div>
+                        <span class="text-xs font-bold text-montano-teal uppercase tracking-wider">Momento IV • Cierre & Evaluación Sumativa</span>
+                        <h2 class="text-2xl font-bold text-montano-blue">Plenaria, Submisión & Rúbrica (10 min)</h2>
+                    </div>
+                    <span class="bg-montano-yellow/30 text-montano-darkblue text-xs font-bold px-3 py-1 rounded-full border border-montano-yellow">
+                        <i class="fa-regular fa-clock mr-1"></i> 10 minutos
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Dinámica de Plenaria y Preguntas Dirigidas -->
+                    <div class="space-y-4">
+                        <div class="bg-montano-bg p-4 rounded-2xl border border-montano-lightblue">
+                            <h3 class="font-bold text-montano-blue text-sm mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-bullhorn text-montano-teal"></i>
+                                <span>Mini-Exposición & Preguntas Dirigidas</span>
+                            </h3>
+                            <p class="text-xs text-slate-600 mb-3">
+                                Selecciona 2 equipos al azar para proyectar su pregunta mejorada. Haz las siguientes preguntas de verificación:
+                            </p>
+                            <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
+                                <li>¿Por qué eliminaron esa palabra específica en su revisión?</li>
+                                <li>¿Cómo garantiza esa escala Likert que no haya sesgo de confirmación?</li>
+                                <li>¿Qué cambio aplicaron tras el Peer-Review de sus compañeros?</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl">
+                            <h4 class="font-bold text-emerald-800 text-sm mb-1"><i class="fa-solid fa-cloud-arrow-up mr-1"></i> Entrega de Actividad 2:</h4>
+                            <p class="text-xs text-emerald-900">
+                                Los estudiantes deben realizar el envío definitivo de su <strong>Activity 2 (Survey & Interview Draft)</strong> a la plataforma o entregar su hoja de trabajo para recibir feedback final.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- INSTRUMENTO DE EVALUACIÓN INTERACTIVO (RÚBRICA / LISTA DE COTEJO) -->
+                    <div class="bg-white border-2 border-montano-blue p-5 rounded-2xl shadow-md">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-montano-blue text-base">Lista de Cotejo de Plenaria</h3>
+                            <span class="text-xs bg-montano-blue text-white px-2 py-0.5 rounded font-bold">Evaluación Grupal</span>
+                        </div>
+                        
+                        <div class="space-y-3 text-xs">
+                            <div class="flex items-start gap-2 p-2 rounded hover:bg-slate-50 border-b border-slate-100">
+                                <input type="checkbox" class="mt-1 rounded text-montano-blue" id="rub1">
+                                <label for="rub1" class="text-slate-700">
+                                    <strong>1. Dominio del Tema:</strong> Identifica con claridad preguntas guiadas, ambiguas y sesgadas.
+                                </label>
+                            </div>
+                            <div class="flex items-start gap-2 p-2 rounded hover:bg-slate-50 border-b border-slate-100">
+                                <input type="checkbox" class="mt-1 rounded text-montano-blue" id="rub2">
+                                <label for="rub2" class="text-slate-700">
+                                    <strong>2. Estructura Racional:</strong> Muestra neutralidad, opciones estandarizadas y orden lógico.
+                                </label>
+                            </div>
+                            <div class="flex items-start gap-2 p-2 rounded hover:bg-slate-50 border-b border-slate-100">
+                                <input type="checkbox" class="mt-1 rounded text-montano-blue" id="rub3">
+                                <label for="rub3" class="text-slate-700">
+                                    <strong>3. Trabajo Colaborativo:</strong> Participación equitativa en la pareja/equipo durante la co-evaluación.
+                                </label>
+                            </div>
+                            <div class="flex items-start gap-2 p-2 rounded hover:bg-slate-50 border-b border-slate-100">
+                                <input type="checkbox" class="mt-1 rounded text-montano-blue" id="rub4">
+                                <label for="rub4" class="text-slate-700">
+                                    <strong>4. Capacidad de Respuesta:</strong> Justifica con argumentos sólidos los cambios realizados.
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t text-center">
+                            <button onclick="resetRubric()" class="text-xs text-slate-400 hover:text-montano-blue underline">Reiniciar Lista para Siguiente Equipo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- PIE DE PÁGINA INSTITUCIONAL -->
+    <footer class="bg-slate-900 text-slate-400 py-3 px-4 text-center text-xs">
+        <p>© Colegio Montano • Asistente Pedagógico e Interactivo de Aula • Modelo Formativo por Hábitos</p>
+    </footer>
+
+    <!-- LÓGICA JAVASCRIPT DE LA PIZARRA DIGITAL -->
+    <script>
+        // Función para cambiar de pestañas
+        function switchTab(tabId) {
+            // Ocultar todos los contenidos de pestaña
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.add('hidden'));
+
+            // Quitar clase active de todos los botones
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                const badge = btn.querySelector('span:first-child');
+                if(badge) {
+                    badge.classList.remove('bg-montano-yellow', 'text-montano-darkblue');
+                    badge.classList.add('bg-slate-300', 'text-slate-700');
+                }
+            });
+
+            // Mostrar contenido seleccionado
+            document.getElementById(tabId).classList.remove('hidden');
+
+            // Activar botón seleccionado
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('active');
+            const activeBadge = activeBtn.querySelector('span:first-child');
+            if(activeBadge) {
+                activeBadge.classList.remove('bg-slate-300', 'text-slate-700');
+                activeBadge.classList.add('bg-montano-yellow', 'text-montano-darkblue');
+            }
+        }
+
+        // Función para alternar Acordeones
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('open');
+        }
+
+        // Función para alternar visión de la alineación pedagógica
+        function togglePedagogy() {
+            const content = document.getElementById('pedagogyContent');
+            const chevron = document.getElementById('pedagogyChevron');
+            const text = document.getElementById('pedagogyToggleText');
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                chevron.style.transform = 'rotate(180deg)';
+                text.innerText = 'Ocultar Detalles';
+            } else {
+                content.classList.add('hidden');
+                chevron.style.transform = 'rotate(0deg)';
+                text.innerText = 'Ver Detalles';
+            }
+        }
+
+        // Función para simular el corrector de preguntas en vivo
+        function runSimulator() {
+            const input = document.getElementById('simInput').value.trim();
+            const output = document.getElementById('simOutput');
+            const result = document.getElementById('simResult');
+
+            if (!input) {
+                alert('Por favor escribe o pega una pregunta para analizar.');
+                return;
+            }
+
+            output.classList.remove('hidden');
+            result.innerText = `Analizando: "${input}" \n\n✔ Sugerencia de Neutralidad: Elimina adjetivos inductivos o palabras como "Don't you agree / ¿No crees que?". Asegúrate de ofrecer una escala neutral de 1 a 5.`;
+        }
+
+        // Función para reiniciar la rúbrica interactiva
+        function resetRubric() {
+            document.querySelectorAll('#tab4 input[type="checkbox"]').forEach(chk => chk.checked = false);
+        }
+
+        // Función para Pantalla Completa (Fullscreen API)
+        function toggleFullscreen() {
+            const doc = document.documentElement;
+            const icon = document.getElementById('fullscreenIcon');
+            const text = document.getElementById('fullscreenText');
+
+            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                if (doc.requestFullscreen) {
+                    doc.requestFullscreen();
+                } else if (doc.msRequestFullscreen) {
+                    doc.msRequestFullscreen();
+                } else if (doc.mozRequestFullScreen) {
+                    doc.mozRequestFullScreen();
+                } else if (doc.webkitRequestFullscreen) {
+                    doc.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+                icon.classList.remove('fa-expand');
+                icon.classList.add('fa-compress');
+                text.innerText = 'Salir de Pantalla Completa';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                icon.classList.remove('fa-compress');
+                icon.classList.add('fa-expand');
+                text.innerText = 'Pantalla Completa';
+            }
+        }
+    </script>
+</body>
+</html>
